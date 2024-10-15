@@ -74,8 +74,7 @@ void ParsedRequest_destroy(struct ParsedRequest *pr);
    line, headers and the trailing \r\n. buf will not be NUL terminated by
    unparse().
  */
-int ParsedRequest_unparse(struct ParsedRequest *pr, char *buf, 
-			  size_t buflen);
+int ParsedRequest_unparse(struct ParsedRequest *pr, char *buf, size_t buflen);
 
 /* 
    Retrieve the entire buffer with the exception of request line from a parsed
@@ -84,8 +83,7 @@ int ParsedRequest_unparse(struct ParsedRequest *pr, char *buf,
    terminated by unparse(). If there are no headers, the trailing \r\n is
    unparsed.
  */
-int ParsedRequest_unparse_headers(struct ParsedRequest *pr, char *buf, 
-				  size_t buflen);
+int ParsedRequest_unparse_headers(struct ParsedRequest *pr, char *buf, size_t buflen);
 
 /* Total length including request line, headers and the trailing \r\n*/
 size_t ParsedRequest_totalLen(struct ParsedRequest *pr);
@@ -116,8 +114,8 @@ void debug(const char * format, ...);
    //is dynamically allocated.
    ParsedRequest *req = ParsedRequest_create();
    if (ParsedRequest_parse(req, c, len) < 0) {
-       printf("parse failed\n");
-       return -1;
+      printf("parse failed\n");
+      return -1;
    }
 
    printf("Method:%s\n", req->method);
@@ -138,7 +136,6 @@ void debug(const char * format, ...);
    b[rlen]='\0';
    // print out b for text request 
    free(b);
-  
 
    // Turn the headers from the request into a string.
    rlen = ParsedHeader_headersLen(req);
@@ -159,22 +156,22 @@ void debug(const char * format, ...);
    // the "If-Modified-Since" header. 
    if (ParsedHeader_remove(req, "If-Modified-Since") < 0){
       printf("remove header key not work\n");
-     return -1;
+      return -1;
    }
 
    // Set a specific header (key) to a value. In this case,
    //we set the "Last-Modified" key to be set to have as 
    //value  a date in February 2014 
    
-    if (ParsedHeader_set(req, "Last-Modified", " Wed, 12 Feb 2014 12:43:31 GMT") < 0){
-     printf("set header key not work\n");
-     return -1;
+   if (ParsedHeader_set(req, "Last-Modified", " Wed, 12 Feb 2014 12:43:31 GMT") < 0){
+      printf("set header key not work\n");
+      return -1;
 
-    }
+   }
 
    // Check the modified Header key value pair
-    r = ParsedHeader_get(req, "Last-Modified");
-    printf("Last-Modified value: %s\n", r->value);
+   r = ParsedHeader_get(req, "Last-Modified");
+   printf("Last-Modified value: %s\n", r->value);
 
    // Call destroy on any ParsedRequests that you
    // create once you are done using them. This will
