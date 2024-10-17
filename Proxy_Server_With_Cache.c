@@ -48,12 +48,12 @@ void *thread_fn(void *socketNew){
     int  byte_send_client,len;
     char *buffer=(char*)calloc(MAX_BYTES,sizeof(char));
     bzero(buffer,MAX_BYTES);
-    bytes_send_client=recv(socket,buffer,MAX_BYTES,0);
+    byte_send_client=recv(socket,buffer,MAX_BYTES,0);
     
-    while(bytes_send_client>0){
+    while(byte_send_client>0){
         len=strlen(buffer);
         if(strstr(buffer,"\r\n\r\n")==NULL){
-            bytes_send_client=recv(socket,buffer+len,MAX_BYTES-len,0);
+            byte_send_client=recv(socket,buffer+len,MAX_BYTES-len,0);
         }
         else{
             break;
@@ -78,7 +78,7 @@ void *thread_fn(void *socketNew){
         printf("Data Retrieved from the Cache\n");
         printf("%s\n\n",response);
     }
-    else if(bytes_send_client>0){
+    else if(byte_send_client>0){
         len=strlen(buffer);
         ParsedRequest*request=ParsedRequest_create();
         if(ParsedRequest_parse(request,buffer,len<0)){
@@ -88,11 +88,11 @@ void *thread_fn(void *socketNew){
             bzero(buffer,MAX_BYTES);
             if(!strcmp(request->method,"GET")){
                 if(request->host && request->path&& checkHTTPversion(request->version)==1){
-                    bytes_send_client=handle_request(socket,request,tempreq);   
-                    if(bytes_send_client==-1){
+                    byte_send_client=handle_request(socket,request,tempreq);   
+                    if(byte_send_client==-1){
                         sendErrorMessage(socket,500);
                     }
-                    else{
+                    }else{
                         sendErrorMessage(socket,500);
                     }
                 }
@@ -100,9 +100,19 @@ void *thread_fn(void *socketNew){
                     printf("This code doesn't support any method apart from GET\n");
                 }
             }
-            
-        }
+        ParsedRequest_destroy(request);
     }
+    else if(byte_send_client==0){
+        printf("client is disconnected");
+    }
+    shutdown(socket,SHUT_RDWR);
+    close(socket);
+    free(buffer);
+    sem_post(&semaphore);
+    sem_getvalue(&semaphore,p);
+    printf("Semaphore post value is %d\n",p);
+    free(tempreq);
+    return NULL;
 }
 
 int main(int argc,char*argv[])
