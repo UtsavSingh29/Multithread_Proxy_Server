@@ -89,8 +89,18 @@ void *thread_fn(void *socketNew){
             if(!strcmp(request->method,"GET")){
                 if(request->host && request->path&& checkHTTPversion(request->version)==1){
                     bytes_send_client=handle_request(socket,request,tempreq);   
+                    if(bytes_send_client==-1){
+                        sendErrorMessage(socket,500);
+                    }
+                    else{
+                        sendErrorMessage(socket,500);
+                    }
+                }
+                else{
+                    printf("This code doesn't support any method apart from GET\n");
                 }
             }
+            
         }
     }
 }
