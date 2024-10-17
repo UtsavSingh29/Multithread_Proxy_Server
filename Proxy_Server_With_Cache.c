@@ -87,7 +87,9 @@ void *thread_fn(void *socketNew){
         else{
             bzero(buffer,MAX_BYTES);
             if(!strcmp(request->method,"GET")){
-                if(request)
+                if(request->host && request->path&& checkHTTPversion(request->version)==1){
+                    bytes_send_client=handle_request(socket,request,tempreq);   
+                }
             }
         }
     }
