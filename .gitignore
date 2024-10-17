@@ -1,0 +1,10 @@
+# Ignore all executable files in the project
+*.out
+*.exe
+
+# Ignore executables with no extension
+Proxy_Server_With_Cache
+# Ignore executable files with no extension
+!*.c
+!*.cpp
+!*.py
