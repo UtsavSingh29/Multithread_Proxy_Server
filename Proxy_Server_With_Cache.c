@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <sys/types.h>
-#include <sys/socket.h>
+#include <sys/socket.h> 
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>  
@@ -14,6 +14,7 @@
 #include <errno.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include "proxy_parse.h"
 
 #define MAX_BYTES 4096
 #define MAX_CLIENTS 10
@@ -38,13 +39,37 @@ pthread_mutex_t lock;
 cache_element *head;
 int cache_size();
 
-int handleRequest(int client_socketid,ParsendRequest*request,char *tempreq){
+
+int connectRemoteServer(char*host_addr,int portno){
+    int remoteSocket=socker(AF_INET,SOCK_STREAM,0);
+        if(remoteSocket<0){
+            printf("Error in creating your socket\n");
+            return -1;
+        }
+        struct hostent*host=gethostbyname(host_addr);
+        if(host==NULL){
+            fprintf(stderr,"No such host exist\n"); 
+            return -1;
+        }
+        struct sockaddr_in server_addr;
+        bzero((char*)&server_addr,sizeof(server_addr));
+        server_addr.sin_family=AF_INET;
+        server_addr.sin_port=htons(port_number);
+        bcopy((char&)host->h_addr,(char*)&server_addr.sin_addr.s_addr,host->h_length);
+        if(connect(remoteSocket,(struct sockaddr*)&server_addr,(size_t)sizeof(server_addr)<0)){
+            fprintf(stderr,"Error in connecting\n");
+                return -1;
+        }
+        return remoteSocket;
+}
+
+int handleRequest(int client_socketid,ParsedRequest*request,char *tempreq){
     char *buf=(char*)malloc(sizeof(char)*MAX_BYTES);
     strcpy(buf,"GET");
     strcpy(buf,request->path);
     strcat(buf," ");
     strcat(buf,request->version);
-    strcat(buf,"\r\n");
+    strcat(buf,"\r\n"); 
     size_t len=strlen(buf);
     if(ParsedHeader_set(request,"Connection","Close")<0){
         printf("Set Header Key is not working ");
@@ -55,13 +80,20 @@ int handleRequest(int client_socketid,ParsendRequest*request,char *tempreq){
         }
     }
     if(ParsedRequest_unparse_headers(request,buf+len,(size_t)MAX_BYTES-len)<0){
-        printf("Unparse Failed";)
+        printf("Unparse Failed");
     }
     int serverport=80;
     if(request->port!=NULL){
-        server_port=atoi(request->port);
+        serverport=atoi(request->port);
     }
-    int remoteSocketId=connectRemoteServer(request->host,server_port);
+    int remoteSocketId=connectRemoteServer(request->host,serverport);
+    int bytes_send=send(remoteSocketId,buf,strlen(buf),0);
+    bzero(buf,MAX_BYTES);
+    bytes_send=recv(remoteSocketId,buf,MAX_BYTES-1,0);
+    char * temp_buffer=(char*)malloc(sizeof(char)*MAX_BYTES);
+    int temp_buffer_size=MAX_BYTES;
+    int temp_buffer_size=0;
+
 }
 
 void *thread_fn(void *socketNew){
@@ -75,7 +107,6 @@ void *thread_fn(void *socketNew){
     char *buffer=(char*)calloc(MAX_BYTES,sizeof(char));
     bzero(buffer,MAX_BYTES);
     byte_send_client=recv(socket,buffer,MAX_BYTES,0);
-    
     while(byte_send_client>0){
         len=strlen(buffer);
         if(strstr(buffer,"\r\n\r\n")==NULL){
