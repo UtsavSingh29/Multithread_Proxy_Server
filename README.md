@@ -21,17 +21,17 @@ sudo apt install gcc libpthread-stubs0-dev
 # How to Build
 To compile the proxy server, navigate to the project directory and run the following command:
 ```
-gcc -pthread -o Proxy_Server_With_Cache main.c HeaderFiles/proxy_parse.c -I HeaderFiles -lpthread
+make
 ```
 This will generate an executable named Proxy_Server_With_Cache.
 # How to Run
 To start the server, run the compiled executable and provide the desired port number as an argument:
 ```
-./Proxy_Server_With_Cache <PORT_NUMBER>
+./proxy <PORT_NUMBER>
 ```
 For example, to run the server on port 8080:
 ```
-./Proxy_Server_With_Cache 8080
+./proxy 8080
 ```
 # Code Overview
 Key Components
