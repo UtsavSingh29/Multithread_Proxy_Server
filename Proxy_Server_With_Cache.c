@@ -93,7 +93,25 @@ int handleRequest(int client_socketid,ParsedRequest*request,char *tempreq){
     char * temp_buffer=(char*)malloc(sizeof(char)*MAX_BYTES);
     int temp_buffer_size=MAX_BYTES;
     int temp_buffer_size=0;
-
+    while(bytes_send>0){
+        bytes_send=send(clientSocketId,buf,bytes_send,0);
+        for(int i=0;i<bytes_send/sizeof(char);i++){
+            temp_buffer[temp_buffer_index]=buf[i];
+            temp_buffer_index++;
+        }
+        temp_buffer_size+=MAX_BYTES;
+        temp_buffer=(char*)realloc(temp_buffer_size);
+        if(bytes_send<0){
+            perror("Error in sending data to client");break;
+        }
+        bzero(buf,MAX_BYTES);
+        bytes_send=recv(remoteSocketId,buf,MAX_BYTES-1,0); 
+    }
+    temp_buffer[temp_buffer_index]='\0';
+    free(buf);
+    add_cache_element(temp_buffer,strlen(temp_buffer),tempReq);
+    free(temp_buffer);
+    close(remoteSocketId); 
 }
 
 void *thread_fn(void *socketNew){
