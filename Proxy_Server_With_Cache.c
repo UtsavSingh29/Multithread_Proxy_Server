@@ -111,7 +111,21 @@ int handleRequest(int client_socketid,ParsedRequest*request,char *tempreq){
     free(buf);
     add_cache_element(temp_buffer,strlen(temp_buffer),tempReq);
     free(temp_buffer);
-    close(remoteSocketId); 
+    close(remoteSocketId);  
+}
+
+int checkHTTPversion(){
+    int version=-1;
+    if(strncmp(msg,"HTTP/1.1",8)==0){
+        version=1;
+    }
+    else if(strncmp(msg,"HTTP/1.0",8)==0){
+        version=1;
+    }
+    else{
+        version=-1;
+    }
+    return version;
 }
 
 void *thread_fn(void *socketNew){
